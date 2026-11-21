@@ -1,0 +1,952 @@
+{
+  "$comment": "Golden pilot cluster for GaonMandi. All people, phones and places are fictional. Phone numbers use the invalid +91 555 series. Distances: haversine, R = 6371008.8 m; every buyer is at least 300 m from their radius edge, so PostGIS geography distances give the same decisions. Do not edit without a PRD change.",
+  "version": "1.0.0",
+  "cluster": {
+    "id": "c-pilot-sample",
+    "name": "Pilot cluster (sample)",
+    "stateCode": "IN-BR",
+    "timezone": "Asia/Kolkata"
+  },
+  "rules": {
+    "alertCapPerDay": 30,
+    "distanceRounding": "nearest whole km, half up, minimum 1",
+    "freshnessMinutes": {
+      "fish": {
+        "default": 240,
+        "min": 60,
+        "max": 480
+      },
+      "prawn": {
+        "default": 240,
+        "min": 60,
+        "max": 480
+      },
+      "crab": {
+        "default": 360,
+        "min": 120,
+        "max": 720
+      },
+      "leafy_greens": {
+        "default": 480,
+        "min": 120,
+        "max": 720
+      },
+      "vegetable_and_fruit": {
+        "default": 1440,
+        "min": 240,
+        "max": 2880
+      },
+      "grain": {
+        "default": 4320,
+        "min": 1440,
+        "max": 10080
+      }
+    },
+    "timerStates": "ok when more than 50% of the time is left; soon from 20% to 50% inclusive; urgent under 20%; expired at 0",
+    "realization": "(final rate, else agreed rate, minus reference) * 10000 / reference, rounded half up, in basis points; reference = ops weekly rate for the category, else the seller's usual rate; only picked_up deals",
+    "timeToFirstBid": "minutes from publish to the first bid or call tap; listings with no response are excluded from the median and counted separately",
+    "repeatSeller": "a seller with a listing in the week who publishes again within 7 days (<= 10080 minutes) after one of those listings"
+  },
+  "villages": [
+    {
+      "id": "v-bazarganj",
+      "nameHi": "बाज़ारगंज",
+      "nameEn": "Bazarganj",
+      "kind": "town",
+      "point": {
+        "lat": 25.8,
+        "lon": 85.2
+      }
+    },
+    {
+      "id": "v-kusumpur",
+      "nameHi": "कुसुमपुर",
+      "nameEn": "Kusumpur",
+      "kind": "village",
+      "point": {
+        "lat": 25.836,
+        "lon": 85.2
+      }
+    },
+    {
+      "id": "v-madhopur",
+      "nameHi": "माधोपुर",
+      "nameEn": "Madhopur",
+      "kind": "village",
+      "point": {
+        "lat": 25.8,
+        "lon": 85.2699
+      }
+    },
+    {
+      "id": "v-sitalpur",
+      "nameHi": "सीतलपुर",
+      "nameEn": "Sitalpur",
+      "kind": "village",
+      "point": {
+        "lat": 25.7424,
+        "lon": 85.1361
+      }
+    },
+    {
+      "id": "v-belagaon",
+      "nameHi": "बेलागांव",
+      "nameEn": "Belagaon",
+      "kind": "village",
+      "point": {
+        "lat": 25.8766,
+        "lon": 85.2848
+      }
+    },
+    {
+      "id": "v-haripur-tola",
+      "nameHi": "हरिपुर टोला",
+      "nameEn": "Haripur Tola",
+      "kind": "village",
+      "point": {
+        "lat": 25.773,
+        "lon": 85.2
+      }
+    },
+    {
+      "id": "v-naya-ghat",
+      "nameHi": "नया घाट",
+      "nameEn": "Naya Ghat",
+      "kind": "village",
+      "point": {
+        "lat": 25.8,
+        "lon": 85.0403
+      }
+    },
+    {
+      "id": "v-rampatti",
+      "nameHi": "रामपट्टी",
+      "nameEn": "Rampatti",
+      "kind": "village",
+      "point": {
+        "lat": 25.9982,
+        "lon": 85.2
+      }
+    }
+  ],
+  "sellers": [
+    {
+      "id": "s-sunita",
+      "name": "Sunita (sample)",
+      "village": "v-belagaon",
+      "tola": "Pokhar tola",
+      "facePhoto": false,
+      "callsAllowed": false,
+      "kind": "fisher",
+      "phoneE164": "+915550000109"
+    },
+    {
+      "id": "s-ramesh",
+      "name": "Ramesh (sample)",
+      "village": "v-kusumpur",
+      "tola": null,
+      "facePhoto": true,
+      "callsAllowed": true,
+      "kind": "farmer",
+      "phoneE164": "+915550000110"
+    },
+    {
+      "id": "s-sunil",
+      "name": "Sunil (sample)",
+      "village": "v-belagaon",
+      "tola": "Nadi kinara",
+      "facePhoto": true,
+      "callsAllowed": true,
+      "kind": "fisher",
+      "phoneE164": "+915550000111"
+    },
+    {
+      "id": "s-geeta",
+      "name": "Geeta (sample)",
+      "village": "v-haripur-tola",
+      "tola": null,
+      "facePhoto": false,
+      "callsAllowed": false,
+      "kind": "farmer",
+      "phoneE164": "+915550000112"
+    },
+    {
+      "id": "s-kamal",
+      "name": "Kamal (sample)",
+      "village": "v-madhopur",
+      "tola": null,
+      "facePhoto": true,
+      "callsAllowed": true,
+      "kind": "farmer",
+      "phoneE164": "+915550000113"
+    },
+    {
+      "id": "s-lalan",
+      "name": "Lalan (sample)",
+      "village": "v-rampatti",
+      "tola": null,
+      "facePhoto": true,
+      "callsAllowed": true,
+      "kind": "farmer",
+      "phoneE164": "+915550000114"
+    }
+  ],
+  "buyers": [
+    {
+      "id": "b-asif",
+      "name": "Asif (sample)",
+      "businessType": "retailer",
+      "market": "v-bazarganj",
+      "radiusM": 15000,
+      "categories": ["fish", "prawn", "crab", "tomato", "brinjal", "leafy_greens"],
+      "verified": true,
+      "status": "active",
+      "whatsappOptIn": true,
+      "quietHours": {
+        "start": "21:00",
+        "end": "04:00"
+      },
+      "phoneE164": "+915550000101"
+    },
+    {
+      "id": "b-mohan",
+      "name": "Mohan (sample)",
+      "businessType": "pheriwala",
+      "market": "v-haripur-tola",
+      "radiusM": 5000,
+      "categories": ["tomato", "potato", "onion", "brinjal", "okra", "leafy_greens"],
+      "verified": true,
+      "status": "active",
+      "whatsappOptIn": false,
+      "quietHours": {
+        "start": "21:00",
+        "end": "04:00"
+      },
+      "phoneE164": "+915550000102"
+    },
+    {
+      "id": "b-highway-dhaba",
+      "name": "Highway Dhaba (sample)",
+      "businessType": "food_business",
+      "market": "v-madhopur",
+      "radiusM": 10000,
+      "categories": ["fish", "prawn", "potato", "onion", "chilli"],
+      "verified": true,
+      "status": "active",
+      "whatsappOptIn": true,
+      "quietHours": {
+        "start": "21:00",
+        "end": "04:00"
+      },
+      "phoneE164": "+915550000103"
+    },
+    {
+      "id": "b-shubh-caterers",
+      "name": "Shubh Caterers (sample)",
+      "businessType": "caterer",
+      "market": "v-bazarganj",
+      "radiusM": 20000,
+      "categories": [
+        "fish",
+        "prawn",
+        "crab",
+        "leafy_greens",
+        "tomato",
+        "potato",
+        "onion",
+        "brinjal",
+        "okra",
+        "cauliflower_cabbage",
+        "gourd",
+        "chilli",
+        "vegetable_other"
+      ],
+      "verified": true,
+      "status": "active",
+      "whatsappOptIn": false,
+      "quietHours": {
+        "start": "21:00",
+        "end": "04:00"
+      },
+      "phoneE164": "+915550000104"
+    },
+    {
+      "id": "b-belagaon-fish",
+      "name": "Belagaon Fish Traders (sample)",
+      "businessType": "retailer",
+      "market": "v-belagaon",
+      "radiusM": 10000,
+      "categories": ["fish", "prawn", "crab"],
+      "verified": true,
+      "status": "active",
+      "whatsappOptIn": true,
+      "quietHours": {
+        "start": "22:00",
+        "end": "03:00"
+      },
+      "phoneE164": "+915550000105"
+    },
+    {
+      "id": "b-kusumpur-store",
+      "name": "Kusumpur Store (sample)",
+      "businessType": "retailer",
+      "market": "v-kusumpur",
+      "radiusM": 10000,
+      "categories": [
+        "leafy_greens",
+        "tomato",
+        "potato",
+        "onion",
+        "brinjal",
+        "okra",
+        "cauliflower_cabbage",
+        "gourd",
+        "chilli",
+        "vegetable_other"
+      ],
+      "verified": false,
+      "status": "active",
+      "whatsappOptIn": false,
+      "quietHours": {
+        "start": "21:00",
+        "end": "04:00"
+      },
+      "phoneE164": "+915550000106"
+    },
+    {
+      "id": "b-ghat-merchant",
+      "name": "Ghat Merchant (sample)",
+      "businessType": "retailer",
+      "market": "v-naya-ghat",
+      "radiusM": 20000,
+      "categories": ["fish", "crab"],
+      "verified": true,
+      "status": "suspended",
+      "whatsappOptIn": false,
+      "quietHours": {
+        "start": "21:00",
+        "end": "04:00"
+      },
+      "phoneE164": "+915550000107"
+    },
+    {
+      "id": "b-sitalpur-mart",
+      "name": "Sitalpur Mart (sample)",
+      "businessType": "retailer",
+      "market": "v-sitalpur",
+      "radiusM": 15000,
+      "categories": [
+        "fish",
+        "leafy_greens",
+        "tomato",
+        "potato",
+        "onion",
+        "brinjal",
+        "okra",
+        "cauliflower_cabbage",
+        "gourd",
+        "chilli",
+        "vegetable_other"
+      ],
+      "verified": true,
+      "status": "active",
+      "whatsappOptIn": false,
+      "quietHours": {
+        "start": "21:00",
+        "end": "04:00"
+      },
+      "phoneE164": "+915550000108"
+    }
+  ],
+  "blocks": [
+    {
+      "blocker": "s-ramesh",
+      "blocked": "b-sitalpur-mart"
+    }
+  ],
+  "listings": [
+    {
+      "id": "l-1",
+      "seller": "s-sunita",
+      "category": "fish",
+      "weightG": 5000,
+      "expectedRate": 18000,
+      "usualRate": 16000,
+      "publishedAtIst": "2026-12-07T06:40:00",
+      "freshnessMinutes": 240
+    },
+    {
+      "id": "l-2",
+      "seller": "s-ramesh",
+      "category": "brinjal",
+      "weightG": 40000,
+      "expectedRate": 2000,
+      "usualRate": null,
+      "publishedAtIst": "2026-12-07T07:05:00",
+      "freshnessMinutes": 1440
+    },
+    {
+      "id": "l-3",
+      "seller": "s-sunil",
+      "category": "crab",
+      "weightG": 2500,
+      "expectedRate": null,
+      "usualRate": 26000,
+      "publishedAtIst": "2026-12-07T03:30:00",
+      "freshnessMinutes": 360
+    },
+    {
+      "id": "l-4",
+      "seller": "s-geeta",
+      "category": "leafy_greens",
+      "weightG": 15000,
+      "expectedRate": 2800,
+      "usualRate": null,
+      "publishedAtIst": "2026-12-07T08:10:00",
+      "freshnessMinutes": 480
+    },
+    {
+      "id": "l-5",
+      "seller": "s-lalan",
+      "category": "potato",
+      "weightG": 200000,
+      "expectedRate": 1500,
+      "usualRate": null,
+      "publishedAtIst": "2026-12-07T09:00:00",
+      "freshnessMinutes": 1440
+    }
+  ],
+  "alertsSentTodayBefore": {
+    "l-4": {
+      "b-shubh-caterers": 30
+    }
+  },
+  "responses": [
+    {
+      "listing": "l-1",
+      "kind": "bid",
+      "buyer": "b-belagaon-fish",
+      "ratePaisePerKg": 19500,
+      "atIst": "2026-12-07T06:49:00"
+    },
+    {
+      "listing": "l-1",
+      "kind": "bid",
+      "buyer": "b-asif",
+      "ratePaisePerKg": 20000,
+      "atIst": "2026-12-07T06:52:00"
+    },
+    {
+      "listing": "l-1",
+      "kind": "bid",
+      "buyer": "b-highway-dhaba",
+      "ratePaisePerKg": 19000,
+      "atIst": "2026-12-07T06:58:00"
+    },
+    {
+      "listing": "l-2",
+      "kind": "call_tap",
+      "buyer": "b-asif",
+      "atIst": "2026-12-07T07:20:00"
+    },
+    {
+      "listing": "l-2",
+      "kind": "bid",
+      "buyer": "b-asif",
+      "ratePaisePerKg": 2200,
+      "atIst": "2026-12-07T07:25:00"
+    },
+    {
+      "listing": "l-2",
+      "kind": "bid",
+      "buyer": "b-shubh-caterers",
+      "ratePaisePerKg": 2400,
+      "atIst": "2026-12-07T07:31:00"
+    },
+    {
+      "listing": "l-3",
+      "kind": "bid",
+      "buyer": "b-belagaon-fish",
+      "ratePaisePerKg": 30000,
+      "atIst": "2026-12-07T04:05:00"
+    },
+    {
+      "listing": "l-4",
+      "kind": "bid",
+      "buyer": "b-mohan",
+      "ratePaisePerKg": 3000,
+      "atIst": "2026-12-07T08:25:00"
+    }
+  ],
+  "deals": [
+    {
+      "listing": "l-1",
+      "buyer": "b-asif",
+      "agreedRatePaisePerKg": 20000,
+      "finalRatePaisePerKg": 20000,
+      "status": "picked_up"
+    },
+    {
+      "listing": "l-2",
+      "buyer": "b-shubh-caterers",
+      "agreedRatePaisePerKg": 2400,
+      "finalRatePaisePerKg": 2300,
+      "status": "picked_up"
+    },
+    {
+      "listing": "l-3",
+      "buyer": "b-belagaon-fish",
+      "agreedRatePaisePerKg": 30000,
+      "finalRatePaisePerKg": null,
+      "status": "picked_up"
+    },
+    {
+      "listing": "l-4",
+      "buyer": "b-mohan",
+      "agreedRatePaisePerKg": 3000,
+      "finalRatePaisePerKg": null,
+      "status": "no_show"
+    }
+  ],
+  "referenceRates": [
+    {
+      "category": "fish",
+      "weekStart": "2026-12-07",
+      "ratePaisePerKg": 17000
+    },
+    {
+      "category": "brinjal",
+      "weekStart": "2026-12-07",
+      "ratePaisePerKg": 1800
+    },
+    {
+      "category": "leafy_greens",
+      "weekStart": "2026-12-07",
+      "ratePaisePerKg": 2500
+    }
+  ],
+  "sellerListingHistory": [
+    {
+      "seller": "s-sunita",
+      "publishedAtIst": ["2026-12-07T06:40:00", "2026-12-09T06:15:00"]
+    },
+    {
+      "seller": "s-ramesh",
+      "publishedAtIst": ["2026-12-07T07:05:00", "2026-12-16T07:00:00"]
+    },
+    {
+      "seller": "s-sunil",
+      "publishedAtIst": ["2026-12-07T03:30:00", "2026-12-13T05:10:00"]
+    },
+    {
+      "seller": "s-geeta",
+      "publishedAtIst": ["2026-12-07T08:10:00"]
+    },
+    {
+      "seller": "s-lalan",
+      "publishedAtIst": ["2026-12-07T09:00:00", "2026-12-14T09:30:00"]
+    }
+  ],
+  "expected": {
+    "alerts": {
+      "l-1": {
+        "publishedAtUtc": "2026-12-07T01:10:00.000Z",
+        "expiresAtUtc": "2026-12-07T05:10:00.000Z",
+        "recipients": ["b-asif", "b-highway-dhaba", "b-shubh-caterers", "b-belagaon-fish"],
+        "inFeedOnly": [],
+        "perBuyer": [
+          {
+            "buyer": "b-asif",
+            "distanceM": 12024,
+            "distanceKmShown": 12,
+            "decision": "push+whatsapp"
+          },
+          {
+            "buyer": "b-mohan",
+            "distanceM": 14309,
+            "distanceKmShown": 14,
+            "decision": "not_candidate",
+            "reasons": ["category_not_followed", "out_of_radius"]
+          },
+          {
+            "buyer": "b-highway-dhaba",
+            "distanceM": 8647,
+            "distanceKmShown": 9,
+            "decision": "push+whatsapp"
+          },
+          {
+            "buyer": "b-shubh-caterers",
+            "distanceM": 12024,
+            "distanceKmShown": 12,
+            "decision": "push"
+          },
+          {
+            "buyer": "b-belagaon-fish",
+            "distanceM": 0,
+            "distanceKmShown": 1,
+            "decision": "push+whatsapp"
+          },
+          {
+            "buyer": "b-kusumpur-store",
+            "distanceM": 9612,
+            "distanceKmShown": 10,
+            "decision": "not_candidate",
+            "reasons": ["not_verified", "category_not_followed"]
+          },
+          {
+            "buyer": "b-ghat-merchant",
+            "distanceM": 25909,
+            "distanceKmShown": 26,
+            "decision": "not_candidate",
+            "reasons": ["not_active", "out_of_radius"]
+          },
+          {
+            "buyer": "b-sitalpur-mart",
+            "distanceM": 21077,
+            "distanceKmShown": 21,
+            "decision": "not_candidate",
+            "reasons": ["out_of_radius"]
+          }
+        ]
+      },
+      "l-2": {
+        "publishedAtUtc": "2026-12-07T01:35:00.000Z",
+        "expiresAtUtc": "2026-12-08T01:35:00.000Z",
+        "recipients": ["b-asif", "b-shubh-caterers"],
+        "inFeedOnly": [],
+        "perBuyer": [
+          {
+            "buyer": "b-asif",
+            "distanceM": 4003,
+            "distanceKmShown": 4,
+            "decision": "push+whatsapp"
+          },
+          {
+            "buyer": "b-mohan",
+            "distanceM": 7005,
+            "distanceKmShown": 7,
+            "decision": "not_candidate",
+            "reasons": ["out_of_radius"]
+          },
+          {
+            "buyer": "b-highway-dhaba",
+            "distanceM": 8061,
+            "distanceKmShown": 8,
+            "decision": "not_candidate",
+            "reasons": ["category_not_followed"]
+          },
+          {
+            "buyer": "b-shubh-caterers",
+            "distanceM": 4003,
+            "distanceKmShown": 4,
+            "decision": "push"
+          },
+          {
+            "buyer": "b-belagaon-fish",
+            "distanceM": 9612,
+            "distanceKmShown": 10,
+            "decision": "not_candidate",
+            "reasons": ["category_not_followed"]
+          },
+          {
+            "buyer": "b-kusumpur-store",
+            "distanceM": 0,
+            "distanceKmShown": 1,
+            "decision": "not_candidate",
+            "reasons": ["not_verified"]
+          },
+          {
+            "buyer": "b-ghat-merchant",
+            "distanceM": 16479,
+            "distanceKmShown": 16,
+            "decision": "not_candidate",
+            "reasons": ["not_active", "category_not_followed"]
+          },
+          {
+            "buyer": "b-sitalpur-mart",
+            "distanceM": 12217,
+            "distanceKmShown": 12,
+            "decision": "not_candidate",
+            "reasons": ["blocked"]
+          }
+        ]
+      },
+      "l-3": {
+        "publishedAtUtc": "2026-12-06T22:00:00.000Z",
+        "expiresAtUtc": "2026-12-07T04:00:00.000Z",
+        "recipients": ["b-belagaon-fish"],
+        "inFeedOnly": ["b-asif", "b-shubh-caterers"],
+        "perBuyer": [
+          {
+            "buyer": "b-asif",
+            "distanceM": 12024,
+            "distanceKmShown": 12,
+            "decision": "skipped_quiet"
+          },
+          {
+            "buyer": "b-mohan",
+            "distanceM": 14309,
+            "distanceKmShown": 14,
+            "decision": "not_candidate",
+            "reasons": ["category_not_followed", "out_of_radius"]
+          },
+          {
+            "buyer": "b-highway-dhaba",
+            "distanceM": 8647,
+            "distanceKmShown": 9,
+            "decision": "not_candidate",
+            "reasons": ["category_not_followed"]
+          },
+          {
+            "buyer": "b-shubh-caterers",
+            "distanceM": 12024,
+            "distanceKmShown": 12,
+            "decision": "skipped_quiet"
+          },
+          {
+            "buyer": "b-belagaon-fish",
+            "distanceM": 0,
+            "distanceKmShown": 1,
+            "decision": "push+whatsapp"
+          },
+          {
+            "buyer": "b-kusumpur-store",
+            "distanceM": 9612,
+            "distanceKmShown": 10,
+            "decision": "not_candidate",
+            "reasons": ["not_verified", "category_not_followed"]
+          },
+          {
+            "buyer": "b-ghat-merchant",
+            "distanceM": 25909,
+            "distanceKmShown": 26,
+            "decision": "not_candidate",
+            "reasons": ["not_active", "out_of_radius"]
+          },
+          {
+            "buyer": "b-sitalpur-mart",
+            "distanceM": 21077,
+            "distanceKmShown": 21,
+            "decision": "not_candidate",
+            "reasons": ["category_not_followed", "out_of_radius"]
+          }
+        ]
+      },
+      "l-4": {
+        "publishedAtUtc": "2026-12-07T02:40:00.000Z",
+        "expiresAtUtc": "2026-12-07T10:40:00.000Z",
+        "recipients": ["b-asif", "b-mohan", "b-sitalpur-mart"],
+        "inFeedOnly": ["b-shubh-caterers"],
+        "perBuyer": [
+          {
+            "buyer": "b-asif",
+            "distanceM": 3002,
+            "distanceKmShown": 3,
+            "decision": "push+whatsapp"
+          },
+          {
+            "buyer": "b-mohan",
+            "distanceM": 0,
+            "distanceKmShown": 1,
+            "decision": "push"
+          },
+          {
+            "buyer": "b-highway-dhaba",
+            "distanceM": 7615,
+            "distanceKmShown": 8,
+            "decision": "not_candidate",
+            "reasons": ["category_not_followed"]
+          },
+          {
+            "buyer": "b-shubh-caterers",
+            "distanceM": 3002,
+            "distanceKmShown": 3,
+            "decision": "skipped_cap"
+          },
+          {
+            "buyer": "b-belagaon-fish",
+            "distanceM": 14309,
+            "distanceKmShown": 14,
+            "decision": "not_candidate",
+            "reasons": ["category_not_followed", "out_of_radius"]
+          },
+          {
+            "buyer": "b-kusumpur-store",
+            "distanceM": 7005,
+            "distanceKmShown": 7,
+            "decision": "not_candidate",
+            "reasons": ["not_verified"]
+          },
+          {
+            "buyer": "b-ghat-merchant",
+            "distanceM": 16269,
+            "distanceKmShown": 16,
+            "decision": "not_candidate",
+            "reasons": ["not_active", "category_not_followed"]
+          },
+          {
+            "buyer": "b-sitalpur-mart",
+            "distanceM": 7248,
+            "distanceKmShown": 7,
+            "decision": "push"
+          }
+        ]
+      },
+      "l-5": {
+        "publishedAtUtc": "2026-12-07T03:30:00.000Z",
+        "expiresAtUtc": "2026-12-08T03:30:00.000Z",
+        "recipients": [],
+        "inFeedOnly": [],
+        "perBuyer": [
+          {
+            "buyer": "b-asif",
+            "distanceM": 22039,
+            "distanceKmShown": 22,
+            "decision": "not_candidate",
+            "reasons": ["category_not_followed", "out_of_radius"]
+          },
+          {
+            "buyer": "b-mohan",
+            "distanceM": 25041,
+            "distanceKmShown": 25,
+            "decision": "not_candidate",
+            "reasons": ["out_of_radius"]
+          },
+          {
+            "buyer": "b-highway-dhaba",
+            "distanceM": 23121,
+            "distanceKmShown": 23,
+            "decision": "not_candidate",
+            "reasons": ["out_of_radius"]
+          },
+          {
+            "buyer": "b-shubh-caterers",
+            "distanceM": 22039,
+            "distanceKmShown": 22,
+            "decision": "not_candidate",
+            "reasons": ["out_of_radius"]
+          },
+          {
+            "buyer": "b-belagaon-fish",
+            "distanceM": 15960,
+            "distanceKmShown": 16,
+            "decision": "not_candidate",
+            "reasons": ["category_not_followed", "out_of_radius"]
+          },
+          {
+            "buyer": "b-kusumpur-store",
+            "distanceM": 18036,
+            "distanceKmShown": 18,
+            "decision": "not_candidate",
+            "reasons": ["not_verified", "out_of_radius"]
+          },
+          {
+            "buyer": "b-ghat-merchant",
+            "distanceM": 27219,
+            "distanceKmShown": 27,
+            "decision": "not_candidate",
+            "reasons": ["not_active", "category_not_followed", "out_of_radius"]
+          },
+          {
+            "buyer": "b-sitalpur-mart",
+            "distanceM": 29153,
+            "distanceKmShown": 29,
+            "decision": "not_candidate",
+            "reasons": ["out_of_radius"]
+          }
+        ]
+      }
+    },
+    "timers": [
+      {
+        "listing": "l-1",
+        "atIst": "2026-12-07T07:40:00",
+        "minutesLeft": 180,
+        "state": "ok"
+      },
+      {
+        "listing": "l-1",
+        "atIst": "2026-12-07T08:40:00",
+        "minutesLeft": 120,
+        "state": "soon"
+      },
+      {
+        "listing": "l-1",
+        "atIst": "2026-12-07T10:00:00",
+        "minutesLeft": 40,
+        "state": "urgent"
+      },
+      {
+        "listing": "l-1",
+        "atIst": "2026-12-07T10:40:00",
+        "minutesLeft": 0,
+        "state": "expired"
+      }
+    ],
+    "metrics": {
+      "timeToFirstBidMinutes": {
+        "l-1": 9,
+        "l-2": 15,
+        "l-3": 35,
+        "l-4": 15
+      },
+      "timeToFirstBidMedianMinutes": 15,
+      "listingsWithoutResponse": ["l-5"],
+      "liquidityBp": 8000,
+      "dealRateBp": 8000,
+      "noShowRateBp": 2500,
+      "priceRealization": [
+        {
+          "listing": "l-1",
+          "ratePaisePerKg": 20000,
+          "referencePaisePerKg": 17000,
+          "referenceSource": "ops_weekly",
+          "realizationBp": 1765
+        },
+        {
+          "listing": "l-2",
+          "ratePaisePerKg": 2300,
+          "referencePaisePerKg": 1800,
+          "referenceSource": "ops_weekly",
+          "realizationBp": 2778
+        },
+        {
+          "listing": "l-3",
+          "ratePaisePerKg": 30000,
+          "referencePaisePerKg": 26000,
+          "referenceSource": "seller_usual",
+          "realizationBp": 1538
+        }
+      ],
+      "priceRealizationMedianBp": 1765,
+      "repeatSellers": [
+        {
+          "seller": "s-sunita",
+          "listedInWeek": true,
+          "repeatWithin7Days": true
+        },
+        {
+          "seller": "s-ramesh",
+          "listedInWeek": true,
+          "repeatWithin7Days": false
+        },
+        {
+          "seller": "s-sunil",
+          "listedInWeek": true,
+          "repeatWithin7Days": true
+        },
+        {
+          "seller": "s-geeta",
+          "listedInWeek": true,
+          "repeatWithin7Days": false
+        },
+        {
+          "seller": "s-lalan",
+          "listedInWeek": true,
+          "repeatWithin7Days": false
+        }
+      ],
+      "repeatSellerRateBp": 4000
+    }
+  }
+}
