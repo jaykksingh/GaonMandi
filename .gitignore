@@ -4,6 +4,7 @@ build/
 .next/
 .turbo/
 coverage/
+.data/
 test-results/
 playwright-report/
 *.log
