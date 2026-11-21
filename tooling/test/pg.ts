@@ -9,24 +9,30 @@ export interface TestDatabase {
   drop: () => Promise<void>;
 }
 
-export async function createTestDatabase(): Promise<TestDatabase> {
-  const adminUrl = process.env.TEST_DATABASE_ADMIN_URL;
-  if (!adminUrl) {
-    throw new Error("TEST_DATABASE_ADMIN_URL is required to create a throwaway test database.");
-  }
+export function getLocalAdminUrl(adminUrl: string): string {
   const parsedAdminUrl = new URL(adminUrl);
   const hostname = parsedAdminUrl.hostname.replace(/^\[|\]$/g, "");
   if (
     !["localhost", "127.0.0.1", "::1"].includes(hostname) ||
-    !["", "5432"].includes(parsedAdminUrl.port) ||
+    parsedAdminUrl.port !== "5432" ||
     parsedAdminUrl.pathname !== "/postgres" ||
     parsedAdminUrl.search !== "" ||
     parsedAdminUrl.hash !== ""
   ) {
     throw new Error(
-      "TEST_DATABASE_ADMIN_URL must point to local PostgreSQL on port 5432 without URL overrides.",
+      "TEST_DATABASE_ADMIN_URL must point to local postgres on port 5432 without URL overrides.",
     );
   }
+  parsedAdminUrl.hostname = "127.0.0.1";
+  return parsedAdminUrl.toString();
+}
+
+export async function createTestDatabase(): Promise<TestDatabase> {
+  const configuredAdminUrl = process.env.TEST_DATABASE_ADMIN_URL;
+  if (!configuredAdminUrl) {
+    throw new Error("TEST_DATABASE_ADMIN_URL is required to create a throwaway test database.");
+  }
+  const adminUrl = getLocalAdminUrl(configuredAdminUrl);
 
   const databaseName = `gm_test_${randomBytes(8).toString("hex")}`;
   const databaseUrl = new URL(adminUrl);
@@ -91,6 +97,7 @@ function applyMigrations(databaseUrl: string): void {
     const file = join(migrationsDir, migration);
     const result = spawnSync("psql", [databaseUrl, "--set=ON_ERROR_STOP=1", "--file", file], {
       encoding: "utf8",
+      env: getLocalPsqlEnvironment(),
     });
     if (result.status !== 0) {
       throw new Error(
@@ -98,4 +105,23 @@ function applyMigrations(databaseUrl: string): void {
       );
     }
   }
+}
+
+export function getLocalPsqlEnvironment(environment: NodeJS.ProcessEnv = process.env) {
+  const safeEnvironment = { ...environment };
+  for (const key of [
+    "PGHOST",
+    "PGHOSTADDR",
+    "PGPORT",
+    "PGDATABASE",
+    "PGUSER",
+    "PGPASSWORD",
+    "PGSERVICE",
+    "PGSERVICEFILE",
+  ]) {
+    delete safeEnvironment[key];
+  }
+  safeEnvironment.PGHOSTADDR = "127.0.0.1";
+  safeEnvironment.PGPORT = "5432";
+  return safeEnvironment;
 }

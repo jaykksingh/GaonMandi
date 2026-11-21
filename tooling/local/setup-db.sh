@@ -9,7 +9,7 @@ const host = adminUrl.hostname.replace(/^\[|\]$/g, "");
 if (
   !["postgres:", "postgresql:"].includes(adminUrl.protocol) ||
   !["localhost", "127.0.0.1", "::1"].includes(host) ||
-  !["", "5432"].includes(adminUrl.port) ||
+  adminUrl.port !== "5432" ||
   adminUrl.pathname !== "/postgres" ||
   adminUrl.search !== "" ||
   adminUrl.hash !== ""
@@ -19,7 +19,9 @@ if (
 }
 NODE
 
-psql "$admin_url" --no-psqlrc --set=ON_ERROR_STOP=1 <<'SQL'
+env -u PGHOST -u PGHOSTADDR -u PGPORT -u PGDATABASE -u PGUSER -u PGPASSWORD \
+  -u PGSERVICE -u PGSERVICEFILE PGHOSTADDR=127.0.0.1 PGPORT=5432 \
+  psql "$admin_url" --no-psqlrc --set=ON_ERROR_STOP=1 <<'SQL'
 SELECT format('CREATE ROLE %I LOGIN PASSWORD %L', 'gm_migrator', 'gm_local_only')
 WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'gm_migrator') \gexec
 SELECT format('ALTER ROLE %I LOGIN', 'gm_migrator')

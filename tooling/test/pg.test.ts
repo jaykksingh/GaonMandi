@@ -1,7 +1,33 @@
 import { Client } from "pg";
 import { spawnSync } from "node:child_process";
+import { chmodSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { createTestDatabase, type TestDatabase } from "./pg.js";
+import { createTestDatabase, getLocalAdminUrl, getLocalPsqlEnvironment, type TestDatabase } from "./pg.js";
+
+it("normalizes the admin URL to IPv4 loopback", () => {
+  const adminUrl = getLocalAdminUrl("postgres://postgres:password@localhost:5432/postgres");
+  expect(new URL(adminUrl).hostname).toBe("127.0.0.1");
+});
+
+it("clears inherited PostgreSQL overrides for migrations", () => {
+  const environment = getLocalPsqlEnvironment({
+    PGHOST: "db.example.com",
+    PGHOSTADDR: "192.0.2.1",
+    PGPORT: "9999",
+    PGDATABASE: "production",
+    PGUSER: "admin",
+    PGPASSWORD: "fake-test-password",
+    PGSERVICE: "production",
+    PGSERVICEFILE: "/tmp/pg_service.conf",
+  });
+  expect(environment.PGHOSTADDR).toBe("127.0.0.1");
+  expect(environment.PGPORT).toBe("5432");
+  for (const key of ["PGHOST", "PGDATABASE", "PGUSER", "PGPASSWORD", "PGSERVICE", "PGSERVICEFILE"]) {
+    expect(environment[key]).toBeUndefined();
+  }
+});
 
 it.each([
   "postgres://postgres:password@db.example.com/postgres",
@@ -9,6 +35,7 @@ it.each([
   "postgres://postgres:password@localhost/postgres?hostaddr=192.0.2.1",
   "postgres://postgres:password@localhost/postgres?dbname=production",
   "postgres://postgres:password@localhost:5433/postgres",
+  "postgres://postgres:password@localhost/postgres",
   "postgres://postgres:password@localhost/production",
 ])("rejects unsafe admin URLs before connecting: %s", async (adminUrl) => {
   const originalAdminUrl = process.env.TEST_DATABASE_ADMIN_URL;
@@ -28,6 +55,7 @@ it.each([
   "postgres://postgres:password@localhost/postgres?host=192.0.2.1",
   "postgres://postgres:password@localhost/postgres?dbname=production",
   "postgres://postgres:password@localhost:5433/postgres",
+  "postgres://postgres:password@localhost/postgres",
   "postgres://postgres:password@localhost/production",
 ])("rejects unsafe connection overrides in local setup: %s", (adminUrl) => {
   const result = spawnSync("bash", ["tooling/local/setup-db.sh"], {
@@ -36,6 +64,30 @@ it.each([
   });
   expect(result.status).toBe(1);
   expect(result.stderr).toContain("without URL overrides.");
+});
+
+it("pins setup-db connections despite inherited PostgreSQL environment overrides", () => {
+  const tempDir = mkdtempSync(join(tmpdir(), "gm-psql-"));
+  const fakePsql = join(tempDir, "psql");
+  writeFileSync(fakePsql, '#!/bin/sh\nprintf "%s %s\\n" "$PGHOSTADDR" "$PGPORT"\n');
+  chmodSync(fakePsql, 0o755);
+  try {
+    const result = spawnSync("bash", ["tooling/local/setup-db.sh"], {
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        PATH: `${tempDir}:${process.env.PATH ?? ""}`,
+        TEST_DATABASE_ADMIN_URL: "postgres://postgres:gm_local_only@localhost:5432/postgres",
+        PGHOSTADDR: "192.0.2.1",
+        PGPORT: "9999",
+        PGSERVICE: "production",
+      },
+    });
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("127.0.0.1 5432");
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
 });
 
 const hasAdminUrl = Boolean(process.env.TEST_DATABASE_ADMIN_URL);
