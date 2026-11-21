@@ -28,6 +28,7 @@
     "local:minio": "bash tooling/local/minio.sh",
     "doctor": "node tooling/doctor.mjs",
     "tokens:generate": "node tooling/tokens/generate.mjs",
+    "i18n:native:generate": "node tooling/i18n/generate-native.mjs",
     "format:check": "prettier --check .",
     "depcruise": "depcruise --config .dependency-cruiser.cjs apps packages"
   },

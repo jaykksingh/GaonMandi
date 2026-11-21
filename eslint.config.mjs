@@ -19,6 +19,24 @@ const noStringUiAttribute = {
     "JSXAttribute[name.name=/^(placeholder|title|aria-label|alt|accessibilityLabel|accessibilityHint)$/][value.type='Literal']",
   message: "Use a string from @gaonmandi/i18n for user-facing UI attributes.",
 };
+const noRulesIo = [
+  {
+    selector: "CallExpression[callee.object.name='Date'][callee.property.name='now']",
+    message: "Pass time into pure rules instead of reading the system clock.",
+  },
+  {
+    selector: "NewExpression[callee.name='Date']",
+    message: "Pass time into pure rules instead of constructing a date from the system clock.",
+  },
+  {
+    selector: "CallExpression[callee.object.name='Math'][callee.property.name='random']",
+    message: "Pure rules and geo helpers must not use randomness.",
+  },
+  {
+    selector: "CallExpression[callee.name='fetch'], CallExpression[callee.property.name='fetch']",
+    message: "Pure rules and geo helpers must not access the network.",
+  },
+];
 const uiRestrictions = [noDefaultExport, noHexColor, noJsxText, noStringUiAttribute];
 
 export default [
@@ -54,6 +72,10 @@ export default [
     rules: {
       "no-restricted-syntax": ["error", ...uiRestrictions.slice(1)],
     },
+  },
+  {
+    files: ["packages/rules/**/*.{ts,tsx}", "packages/geo/**/*.{ts,tsx}"],
+    rules: { "no-restricted-syntax": ["error", noDefaultExport, ...noRulesIo] },
   },
   {
     files: [

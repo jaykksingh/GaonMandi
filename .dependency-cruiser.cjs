@@ -52,7 +52,7 @@ module.exports = {
       to: { path: "^packages/(?!geo/)" },
     },
     {
-      name: "no-rules-io",
+      name: "no-rules-io-imports",
       severity: "error",
       from: { path: "^packages/(rules|geo)/" },
       to: { path: "^node:(fs|net|http|https|child_process|crypto|timers|os)" },
