@@ -83,8 +83,11 @@ async function dropDatabase(adminUrl: string, databaseName: string): Promise<voi
   }
 }
 
-function applyMigrations(databaseUrl: string): void {
-  const migrationsDir = resolve("packages/db/migrations");
+export function applyMigrations(
+  databaseUrl: string,
+  migrationsDir = resolve("packages/db/migrations"),
+  environment: NodeJS.ProcessEnv = getLocalPsqlEnvironment(),
+): void {
   if (!existsSync(migrationsDir)) {
     return;
   }
@@ -95,9 +98,9 @@ function applyMigrations(databaseUrl: string): void {
 
   for (const migration of migrations) {
     const file = join(migrationsDir, migration);
-    const result = spawnSync("psql", [databaseUrl, "--set=ON_ERROR_STOP=1", "--file", file], {
+    const result = spawnSync("psql", [databaseUrl, "--no-psqlrc", "--set=ON_ERROR_STOP=1", "--file", file], {
       encoding: "utf8",
-      env: getLocalPsqlEnvironment(),
+      env: environment,
     });
     if (result.status !== 0) {
       throw new Error(

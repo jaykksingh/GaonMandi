@@ -1,10 +1,16 @@
 import { Client } from "pg";
 import { spawnSync } from "node:child_process";
-import { chmodSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { createTestDatabase, getLocalAdminUrl, getLocalPsqlEnvironment, type TestDatabase } from "./pg.js";
+import {
+  applyMigrations,
+  createTestDatabase,
+  getLocalAdminUrl,
+  getLocalPsqlEnvironment,
+  type TestDatabase,
+} from "./pg.js";
 
 it("normalizes the admin URL to IPv4 loopback", () => {
   const adminUrl = getLocalAdminUrl("postgres://postgres:password@localhost:5432/postgres");
@@ -85,6 +91,29 @@ it("pins setup-db connections despite inherited PostgreSQL environment overrides
     });
     expect(result.status).toBe(0);
     expect(result.stdout).toContain("127.0.0.1 5432");
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+it("disables psql startup files before applying migrations", () => {
+  const tempDir = mkdtempSync(join(tmpdir(), "gm-migrations-"));
+  const migrationsDir = join(tempDir, "migrations");
+  const binDir = join(tempDir, "bin");
+  const argsFile = join(tempDir, "psql-args.txt");
+  const fakePsql = join(binDir, "psql");
+  mkdirSync(migrationsDir);
+  mkdirSync(binDir);
+  writeFileSync(join(migrationsDir, "001_test.sql"), "SELECT 1;\n");
+  writeFileSync(fakePsql, '#!/bin/sh\nprintf "%s\\n" "$@" > "$PSQL_ARGS_FILE"\n');
+  chmodSync(fakePsql, 0o755);
+  try {
+    applyMigrations("postgres://postgres@127.0.0.1:5432/gm_test_fixture", migrationsDir, {
+      ...getLocalPsqlEnvironment(),
+      PATH: `${binDir}:${process.env.PATH ?? ""}`,
+      PSQL_ARGS_FILE: argsFile,
+    });
+    expect(readFileSync(argsFile, "utf8").split("\n")).toContain("--no-psqlrc");
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
