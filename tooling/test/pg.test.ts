@@ -8,6 +8,8 @@ it.each([
   "postgres://postgres:password@localhost/postgres?host=192.0.2.1",
   "postgres://postgres:password@localhost/postgres?hostaddr=192.0.2.1",
   "postgres://postgres:password@localhost/postgres?dbname=production",
+  "postgres://postgres:password@localhost:5433/postgres",
+  "postgres://postgres:password@localhost/production",
 ])("rejects unsafe admin URLs before connecting: %s", async (adminUrl) => {
   const originalAdminUrl = process.env.TEST_DATABASE_ADMIN_URL;
   process.env.TEST_DATABASE_ADMIN_URL = adminUrl;
@@ -25,6 +27,8 @@ it.each([
 it.each([
   "postgres://postgres:password@localhost/postgres?host=192.0.2.1",
   "postgres://postgres:password@localhost/postgres?dbname=production",
+  "postgres://postgres:password@localhost:5433/postgres",
+  "postgres://postgres:password@localhost/production",
 ])("rejects unsafe connection overrides in local setup: %s", (adminUrl) => {
   const result = spawnSync("bash", ["tooling/local/setup-db.sh"], {
     encoding: "utf8",

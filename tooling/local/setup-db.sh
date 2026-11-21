@@ -9,11 +9,12 @@ const host = adminUrl.hostname.replace(/^\[|\]$/g, "");
 if (
   !["postgres:", "postgresql:"].includes(adminUrl.protocol) ||
   !["localhost", "127.0.0.1", "::1"].includes(host) ||
+  !["", "5432"].includes(adminUrl.port) ||
   adminUrl.pathname !== "/postgres" ||
   adminUrl.search !== "" ||
   adminUrl.hash !== ""
 ) {
-  console.error("TEST_DATABASE_ADMIN_URL must target the local postgres database without URL overrides.");
+  console.error("TEST_DATABASE_ADMIN_URL must target local postgres on port 5432 without URL overrides.");
   process.exit(1);
 }
 NODE

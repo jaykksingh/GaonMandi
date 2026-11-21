@@ -18,10 +18,14 @@ export async function createTestDatabase(): Promise<TestDatabase> {
   const hostname = parsedAdminUrl.hostname.replace(/^\[|\]$/g, "");
   if (
     !["localhost", "127.0.0.1", "::1"].includes(hostname) ||
+    !["", "5432"].includes(parsedAdminUrl.port) ||
+    parsedAdminUrl.pathname !== "/postgres" ||
     parsedAdminUrl.search !== "" ||
     parsedAdminUrl.hash !== ""
   ) {
-    throw new Error("TEST_DATABASE_ADMIN_URL must point to local PostgreSQL without URL overrides.");
+    throw new Error(
+      "TEST_DATABASE_ADMIN_URL must point to local PostgreSQL on port 5432 without URL overrides.",
+    );
   }
 
   const databaseName = `gm_test_${randomBytes(8).toString("hex")}`;
