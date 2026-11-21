@@ -54,7 +54,6 @@ apps/mobile/ios/build/
 *.aab
 *.ipa
 *.keystore
-!debug.keystore
 *.jks
 
 # Keys and credentials
