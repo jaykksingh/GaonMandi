@@ -14,6 +14,11 @@ export async function createTestDatabase(): Promise<TestDatabase> {
   if (!adminUrl) {
     throw new Error("TEST_DATABASE_ADMIN_URL is required to create a throwaway test database.");
   }
+  const parsedAdminUrl = new URL(adminUrl);
+  const hostname = parsedAdminUrl.hostname.replace(/^\[|\]$/g, "");
+  if (!["localhost", "127.0.0.1", "::1"].includes(hostname)) {
+    throw new Error("TEST_DATABASE_ADMIN_URL must point to local PostgreSQL.");
+  }
 
   const databaseName = `gm_test_${randomBytes(8).toString("hex")}`;
   const databaseUrl = new URL(adminUrl);

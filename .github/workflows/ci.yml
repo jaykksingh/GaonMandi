@@ -24,6 +24,7 @@ jobs:
           sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'gm_local_only';"
           echo "TEST_DATABASE_ADMIN_URL=postgres://postgres:gm_local_only@localhost:5432/postgres" >> "$GITHUB_ENV"
       - run: pnpm install --frozen-lockfile
+      - run: pnpm local:db && pnpm local:db
       - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm typecheck

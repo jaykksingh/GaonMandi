@@ -43,7 +43,7 @@ A farmer with 30 kg of vegetables or a fisher with 5 kg of fresh catch lists it 
 
 ## Runs without Docker or GPU
 
-Prerequisites: Node 22.13+, pnpm via Corepack, JDK 17, Android SDK command-line tools, native Postgres 16 + PostGIS 3, and the MinIO binary. Install MinIO Client (`mc`) to provision the local media bucket. The Android emulator is optional; use a USB-connected device over ADB when CPU virtualization is unavailable. Run the workspace tool check with `pnpm run doctor` (`pnpm doctor` is reserved by pnpm itself).
+Prerequisites: Node 22.13+, pnpm via Corepack, JDK 17, Android SDK command-line tools, native Postgres 16 + PostGIS 3, and the MinIO binary. Install MinIO Client (`mc`) to provision the local media bucket. Copy `.env.example` to `.env` and set unique `S3_ACCESS_KEY_ID` and `S3_SECRET_ACCESS_KEY` values before running `pnpm local:minio`; the service binds to localhost only. The Android emulator is optional; use a USB-connected device over ADB when CPU virtualization is unavailable. Run the workspace tool check with `pnpm run doctor` (`pnpm doctor` is reserved by pnpm itself).
 
 ## Repository layout (target)
 
