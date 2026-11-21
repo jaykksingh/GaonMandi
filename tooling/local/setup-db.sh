@@ -9,9 +9,11 @@ const host = adminUrl.hostname.replace(/^\[|\]$/g, "");
 if (
   !["postgres:", "postgresql:"].includes(adminUrl.protocol) ||
   !["localhost", "127.0.0.1", "::1"].includes(host) ||
-  adminUrl.pathname !== "/postgres"
+  adminUrl.pathname !== "/postgres" ||
+  adminUrl.search !== "" ||
+  adminUrl.hash !== ""
 ) {
-  console.error("TEST_DATABASE_ADMIN_URL must target the local postgres database.");
+  console.error("TEST_DATABASE_ADMIN_URL must target the local postgres database without URL overrides.");
   process.exit(1);
 }
 NODE
