@@ -25,7 +25,7 @@ GaonMandi never connects to a bank, payment gateway or wallet (ADR-007).
 | `apps/admin` | Next.js (App Router) | Staff console: buyer verification, moderation, cluster setup, reference prices, pilot dashboard |
 | `apps/api` | Fastify 5, Zod | HTTP API `/v1`: auth, profiles, listings, media upload URLs, bids, deals, reports, admin routes |
 | `apps/worker` | pg-boss | Jobs: media processing, alert fan-out, expiry, reminders, metric roll-ups, retention purge |
-| Postgres 16 + PostGIS | Supabase (local: Docker) | All data; radius queries; job queue |
+| Postgres 16 + PostGIS | Supabase (local: native install) | All data; radius queries; job queue |
 | Object storage | Supabase Storage via S3 API (local: MinIO) | Listing photos, voice notes, profile photos |
 
 ## 3. Shared packages
@@ -97,7 +97,7 @@ A listing is saved on the phone first (photos plus form), then sent by a backgro
 ## 7. Environments
 | Env | Database | Notifications | Purpose |
 |---|---|---|---|
-| local | Docker Postgres + PostGIS, MinIO | Fakes (logged) | Development and tests |
+| local | Native Postgres 16 + PostGIS, MinIO binary | Fakes (logged) | Development and tests |
 | dev | Supabase project (dev) | FCM test app, WhatsApp sandbox, SMS to whitelisted numbers | Team testing on real phones |
 | pilot | Supabase project (prod, Mumbai) | Real FCM, approved WhatsApp templates, DLT SMS | The 60-day pilot |
 

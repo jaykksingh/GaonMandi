@@ -15,6 +15,7 @@ Each record states the context, the decision and its consequences. Status is **A
 **Context:** radius search ("buyers within 15 km of this village") is the core query.
 **Decision:** Postgres 16 with PostGIS (`geography(Point, 4326)`, `ST_DWithin`). Hosted on Supabase (Mumbai region) for the database and file storage. The mobile app and admin console never call Supabase directly; only the API and worker do.
 **Consequences:** radius queries use a GiST index. Local development runs Postgres with PostGIS in Docker and MinIO for storage. Row-level security protects private tables as a second line of defence (BACKEND_PLAN §5.3).
+Local setup superseded by ADR-017.
 
 ## ADR-004 pg-boss for jobs
 **Decision:** background jobs (alert fan-out, expiry, media processing, reminders, metrics roll-ups) run on pg-boss in the same Postgres.
@@ -68,3 +69,13 @@ Each record states the context, the decision and its consequences. Status is **A
 **Context:** AI could transcribe voice notes, suggest categories from photos or detect old photos, but none of these is needed to prove liquidity.
 **Decision:** no AI calls in the MVP. If AI is added after the pilot, it lives in one package with versioned prompts and evals, never sets a price, and never sees a phone number.
 **Consequences:** lower cost and fewer privacy questions for the pilot.
+
+## ADR-017 Local development and CI without Docker or GPU
+**Context:** development and CI must work on desktops without Docker or a GPU while retaining the same Postgres/PostGIS and object-storage behavior as production.
+**Decision:**
+1. Install Postgres 16 with PostGIS 3 natively: use Postgres.app (which bundles PostGIS) or Homebrew on macOS, and `postgresql-16` plus `postgresql-16-postgis-3` from apt/PGDG on Linux.
+2. Run MinIO as a native single binary on ports 9000 and 9001.
+3. Integration and RLS tests create a throwaway database for each test run through `TEST_DATABASE_ADMIN_URL`, enable PostGIS, apply migrations, and drop the database during teardown. This replaces container-managed test databases.
+4. Build React Native Android headlessly with CPU-only tooling: JDK 17, Android SDK command-line tools, and the Gradle wrapper. An emulator is optional; when used, run it with `-no-window -gpu swiftshader_indirect` and CPU virtualization (KVM or HVF). Without virtualization, run Maestro flows on a USB-connected phone over ADB.
+5. CI follows the same native path, installing PostGIS on the Ubuntu runner without service containers.
+**Consequences:** local setup requires native Postgres/PostGIS and MinIO installations, but no container runtime or GPU. Android release builds remain available on CPU-only machines; emulator-based flows require virtualization, with a physical-device alternative.

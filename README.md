@@ -17,7 +17,7 @@ A farmer with 30 kg of vegetables or a fisher with 5 kg of fresh catch lists it 
 
 ## Status
 
-**Specification stage.** The product, design and architecture documents are written; the code is built next, package by package. The first goal is a 60-day pilot in one cluster of 15–20 villages, measuring:
+**Starter scaffolding.** The monorepo tooling and native development setup are in place; product features are built package by package. The first goal is a 60-day pilot in one cluster of 15–20 villages, measuring:
 
 | Metric | Target |
 |---|---|
@@ -39,7 +39,11 @@ A farmer with 30 kg of vegetables or a fisher with 5 kg of fresh catch lists it 
 | Storage | Supabase Storage (S3 API); MinIO locally |
 | Auth | Phone number + one-time code (SMS, DLT-registered) |
 | Notifications | Firebase Cloud Messaging; WhatsApp Business Cloud API for opted-in buyers |
-| Testing | Vitest, Testcontainers, fast-check, React Native Testing Library, Maestro, Playwright |
+| Testing | Vitest, native Postgres + PostGIS, fast-check, React Native Testing Library, Maestro, Playwright |
+
+## Runs without Docker or GPU
+
+Prerequisites: Node 22.13+, pnpm via Corepack, JDK 17, Android SDK command-line tools, native Postgres 16 + PostGIS 3, and the MinIO binary. Install MinIO Client (`mc`) to provision the local media bucket. The Android emulator is optional; use a USB-connected device over ADB when CPU virtualization is unavailable. Run the workspace tool check with `pnpm run doctor` (`pnpm doctor` is reserved by pnpm itself).
 
 ## Repository layout (target)
 

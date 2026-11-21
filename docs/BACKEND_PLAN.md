@@ -40,7 +40,7 @@ How the API, worker and database implement the [PRD](PRD.md). Architecture overv
 | SMS | MSG91 OTP API (DLT), behind an adapter |
 | Auth tokens | `jose` (signed JWT access tokens, 15 min), opaque rotating refresh tokens (30 days) |
 | Logging | pino with a redaction list (phone, name, coordinates, tokens) |
-| Tests | Vitest, Testcontainers (Postgres + PostGIS), fast-check |
+| Tests | Vitest, native Postgres 16 + PostGIS (throwaway database per run), fast-check |
 
 ## 4. Modules (apps/api/src/modules)
 `auth` · `profiles` · `villages` · `media` · `listings` · `alerts` · `bids` · `deals` · `contact` · `safety` · `notifications` · `admin` · `metrics`. Each module: `routes.ts` (thin), `service.ts` (logic), `repo.ts` (SQL), `schemas.ts`, `jobs.ts`, tests beside them.
@@ -355,11 +355,11 @@ Golden examples are in `design/fixtures/pilot-cluster.json` (`expected.metrics`)
 | Layer | What | Tools |
 |---|---|---|
 | Rules and geo | Golden fixture, property tests (distance symmetry, rounding, timer limits) | Vitest, fast-check |
-| Database | Migrations on an empty DB; RLS cross-user tests for every private table; PostGIS radius queries against the fixture | Testcontainers (postgis/postgis:16) |
+| Database | Migrations on an empty DB; RLS cross-user tests for every private table; PostGIS radius queries against the fixture | native Postgres + PostGIS, throwaway DB per run |
 | API | Route tests: auth, validation, rate limits, idempotency, `If-Match`, problem codes | Vitest + Fastify inject |
 | Jobs | Run twice → same state; fan-out never sends twice | pg-boss in test mode |
 | Notifications | Fake FCM, WhatsApp and SMS adapters record calls | `packages/notify/testing` |
-| Mobile | Component tests; end-to-end flows on an emulator (sign-in, list, bid, accept) | Jest + React Native Testing Library, Maestro |
+| Mobile | Component tests; end-to-end flows on an optional emulator (KVM/HVF, no GPU) or a physical device over ADB; release gate is headless Jest + Gradle build | Jest + React Native Testing Library, Maestro |
 | Admin | Component and e2e tests | Vitest, Playwright |
 
 ## 14. Pilot readiness review (before Day 1)
